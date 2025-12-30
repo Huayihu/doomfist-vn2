@@ -1,67 +1,96 @@
 {
-  "start": "intro",
+  "meta": {
+    "title": "昨日偶遇：末日铁拳",
+    "start": "node_start"
+  },
+  "state": {
+    "affection": 0,
+    "trust": 0,
+    "unread": 0
+  },
   "nodes": {
-    "intro": {
+    "node_start": {
       "speaker": "旁白",
-      "sprite": "A",
-      "text": "你推开门，空气里有一股金属与玫瑰的味道。\\n他站在光里，没有回头。",
+      "text": "你站在樱花树下，他已经在那里等你。",
       "choices": [
-        { "text": "（冷静）你是谁？你想要什么？", "next": "q1_cold", "affectionDelta": 0 },
-        { "text": "（不耐烦）你凭什么喊我来？", "next": "q1_rude", "affectionDelta": -2 },
-        { "text": "（试探）如果我拒绝呢？", "next": "q1_test", "affectionDelta": +1 }
+        {
+          "id": "c1",
+          "text": "（冷静）你是谁？",
+          "onDelta": 1,
+          "next": "node_intro"
+        },
+        {
+          "id": "c2",
+          "text": "（警惕）你想做什么？",
+          "onDelta": -1,
+          "next": "node_intro"
+        }
       ]
     },
-    "q1_cold": {
-      "speaker": "Doomfist",
-      "sprite": "A",
-      "text": "很好。你先问目的，而不是恐惧。\\n我需要一个能做决定的人。",
+
+    "node_intro": {
+      "speaker": "末日铁拳",
+      "text": "名字不重要。重要的是，你现在站在这里。",
       "choices": [
-        { "text": "继续听下去。", "next": "q2", "affectionDelta": +1 },
-        { "text": "我不感兴趣。", "next": "end_leave", "affectionDelta": -1 }
+        {
+          "id": "c3",
+          "text": "继续听他说下去",
+          "onDelta": 1,
+          "next": "node_mail_trigger"
+        },
+        {
+          "id": "c4",
+          "text": "沉默",
+          "onDelta": 0,
+          "next": "node_mail_trigger"
+        }
       ]
     },
-    "q1_rude": {
-      "speaker": "Doomfist",
-      "sprite": "B",
-      "text": "脾气不错……但分寸很差。\\n如果你要发火，就把火用在对的地方。",
-      "choices": [
-        { "text": "……说正事。", "next": "q2", "affectionDelta": 0 },
-        { "text": "我走了。", "next": "end_leave", "affectionDelta": -2 }
-      ]
-    },
-    "q1_test": {
-      "speaker": "Doomfist",
-      "sprite": "A",
-      "text": "你可以拒绝。\\n只是拒绝之后，你得承担后果——这就是选择。",
-      "choices": [
-        { "text": "行，那我听。", "next": "q2", "affectionDelta": +1 },
-        { "text": "我拒绝。", "next": "end_leave", "affectionDelta": -1 }
-      ]
-    },
-    "q2": {
+
+    "node_mail_trigger": {
       "speaker": "旁白",
-      "sprite": "A",
-      "text": "他把一封信推到你面前，指尖敲了敲桌面。\\n你注意到那朵玫瑰别在他胸前，红得过分。",
+      "text": "你的终端轻微震动了一下。",
+      "mail": {
+        "id": "mail_1",
+        "title": "来自陌生人的信",
+        "content": "如果你能读到这封信，说明你已经做出了选择。",
+        "onReceive": {
+          "unread": 1
+        }
+      },
       "choices": [
-        { "text": "（伸手）我看看信。", "next": "end_mid", "affectionDelta": +2 },
-        { "text": "（盯着他）先回答我一个问题。", "next": "end_mid", "affectionDelta": +1 }
+        {
+          "id": "c5",
+          "text": "查看信件",
+          "onDelta": 0,
+          "next": "node_after_mail"
+        }
       ]
     },
-    "end_leave": {
+
+    "node_after_mail": {
+      "speaker": "末日铁拳",
+      "text": "看来，你并不害怕未知。",
+      "choices": [
+        {
+          "id": "c6",
+          "text": "我只是想弄清楚真相",
+          "onDelta": 1,
+          "next": "node_end"
+        },
+        {
+          "id": "c7",
+          "text": "我只是路过",
+          "onDelta": -1,
+          "next": "node_end"
+        }
+      ]
+    },
+
+    "node_end": {
       "speaker": "旁白",
-      "sprite": "B",
-      "text": "你离开时，背后没有脚步声追来。\\n但你知道，那道目光一直在。",
-      "choices": [
-        { "text": "【重新开始】", "next": "intro", "affectionDelta": 0 }
-      ]
-    },
-    "end_mid": {
-      "speaker": "Doomfist",
-      "sprite": "A",
-      "text": "【普通结局】临界点\\n（点 RESET 重新开始）",
-      "choices": [
-        { "text": "【重新开始】", "next": "intro", "affectionDelta": 0 }
-      ]
+      "text": "风吹过樱花，你意识到这次相遇不会轻易结束。",
+      "end": true
     }
   }
 }
