@@ -1,5 +1,6 @@
 :root{
-  --ui-bg: rgba(18,18,24,0.72);
+  --ui-bg: rgba(18,18,24,0.60);
+  --ui-bg2: rgba(18,18,24,0.72);
   --ui-border: rgba(255,255,255,0.18);
   --ui-text: rgba(255,255,255,0.92);
   --ui-sub: rgba(255,255,255,0.70);
@@ -7,283 +8,270 @@
 }
 
 *{ box-sizing:border-box; }
-
-html, body{
-  height: 100%;
-  margin: 0;
+html,body{ height:100%; margin:0; }
+body{
+  font-family: system-ui, -apple-system, "Segoe UI","PingFang SC","Microsoft YaHei", sans-serif;
   background:#000;
-  color: var(--ui-text);
-  font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  overflow:hidden;
 }
 
-/* 用 dvh 解决 iOS 地址栏导致的黑屏/高度错乱 */
 .app{
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
+  position:relative;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
 }
 
-/* 背景：永远 cover + 居中裁切 */
+/* 背景 */
 .bg{
   position:absolute;
   inset:0;
-  background: url("assets/bg.png") center center / cover no-repeat;
-  transform: translateZ(0);
-  pointer-events:none;
+  background-image:url("assets/bg.png");
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+  transform:translateZ(0);
 }
 
-/* 立绘层：底部贴地，默认居中（你要更靠右/左可改 --char-x） */
+/* 立绘层：默认“贴底居中”，PC上更大 */
 .char-layer{
-  --char-x: 50%;
   position:absolute;
-  left: var(--char-x);
-  bottom: 0;
-  transform: translateX(-50%);
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
   width: min(1100px, 70vw);
   height: 92vh;
-  height: 92dvh;
+  pointer-events:none;
   display:flex;
   align-items:flex-end;
   justify-content:center;
-  pointer-events:none;
 }
 .char-img{
-  height: 100%;
-  width: auto;
-  max-width: none;
-  object-fit: contain;
-  filter: drop-shadow(0 18px 32px rgba(0,0,0,0.35));
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:bottom center;
+  filter: drop-shadow(0 10px 25px rgba(0,0,0,0.35));
 }
 
-/* 顶部按钮：固定左上（你想右上：把 left 改 right 并删 left） */
-.hud{
+/* 顶部按钮 */
+.topbar{
   position:absolute;
-  top: max(10px, env(safe-area-inset-top));
-  left: max(10px, env(safe-area-inset-left));
+  top: calc(10px + env(safe-area-inset-top));
+  left: calc(10px + env(safe-area-inset-left));
   display:flex;
-  gap: 10px;
-  z-index: 30;
+  gap:10px;
+  z-index:50;
 }
-.hud-btn{
-  appearance:none;
-  border: 1px solid var(--ui-border);
-  background: rgba(255,255,255,0.16);
+.pill{
+  border:1px solid var(--ui-border);
+  background: rgba(255,255,255,0.18);
   color: var(--ui-text);
-  padding: 10px 14px;
-  border-radius: 14px;
+  padding:10px 14px;
+  border-radius:14px;
   cursor:pointer;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
-.hud-btn.is-active{
-  border-color: rgba(255,255,255,0.30);
-  background: rgba(255,255,255,0.22);
-}
+.pill:hover{ background: rgba(255,255,255,0.24); }
+.pill.danger{ background: rgba(255,90,90,0.20); }
+.pill.small{ padding:8px 12px; border-radius:12px; }
 .badge{
-  display:inline-flex;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 6px;
-  margin-left: 6px;
-  border-radius: 999px;
-  align-items:center;
-  justify-content:center;
-  background: rgba(255,70,120,0.95);
+  margin-left:6px;
+  display:inline-block;
+  min-width:22px;
+  padding:2px 7px;
+  border-radius:999px;
+  background: rgba(255,60,120,0.95);
   color:#fff;
-  font-size: 12px;
+  font-size:12px;
+  line-height:18px;
+  text-align:center;
 }
 .hidden{ display:none !important; }
 
-/* 左下角好感度 */
+/* 左下好感度 */
 .affection{
   position:absolute;
-  left: max(14px, env(safe-area-inset-left));
-  bottom: calc(10px + env(safe-area-inset-bottom) + 8px);
-  z-index: 30;
-  display:flex;
-  flex-direction:column;
-  gap: 6px;
+  left: calc(14px + env(safe-area-inset-left));
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  width: min(260px, 46vw);
+  z-index:50;
+  color:var(--ui-text);
 }
+.aff-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:14px;
+  margin-bottom:6px;
+}
+.heart{ color: rgba(255,90,160,0.95); }
+.aff-value{ font-weight:700; }
 .aff-bar{
-  width: 180px;
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.20);
+  width:100%;
+  height:10px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.18);
   overflow:hidden;
-  border: 1px solid rgba(255,255,255,0.18);
+  border:1px solid rgba(255,255,255,0.12);
 }
 .aff-fill{
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, rgba(255,120,200,0.95), rgba(255,200,240,0.95));
-}
-.aff-text{
-  font-size: 14px;
-  color: var(--ui-text);
-  text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, rgba(255,90,160,0.95), rgba(255,170,220,0.95));
 }
 
-/* 选项：在对话框上方一行，自动换行 */
-.choices{
-  position:absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(32vh + 14px);
-  width: min(1100px, 92vw);
-  display:flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  z-index: 40;
-}
-.choice-btn{
-  appearance:none;
-  border: 1px solid var(--ui-border);
-  background: rgba(255,255,255,0.12);
-  color: var(--ui-text);
-  padding: 10px 12px;
-  border-radius: 14px;
-  cursor:pointer;
-  backdrop-filter: blur(10px);
-  max-width: 100%;
-}
-.choice-btn:hover{
-  background: rgba(255,255,255,0.18);
-}
-
-/* 对话框：不超过下 1/3 */
+/* 对话框：更明显，避免“看不清” */
 .textbox{
   position:absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(10px + env(safe-area-inset-bottom));
-  width: min(1200px, 92vw);
-  height: 32vh;
-  max-height: 320px;
-  background: var(--ui-bg);
-  border: 1px solid var(--ui-border);
-  border-radius: 18px;
-  padding: 16px 18px;
-  z-index: 35;
-  backdrop-filter: blur(12px);
-  cursor: pointer;
-  overflow:hidden;
+  left:50%;
+  transform:translateX(-50%);
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  width: min(1180px, 92vw);
+  height: min(260px, 30vh);
+  background: var(--ui-bg2);
+  border:1px solid var(--ui-border);
+  border-radius:18px;
+  padding:16px 18px;
+  z-index:40;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
-.tb-top{
+.textbox-head{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom:10px;
 }
 .speaker{
-  font-weight: 650;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.10);
-  border: 1px solid rgba(255,255,255,0.14);
+  padding:6px 12px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.12);
+  border:1px solid rgba(255,255,255,0.14);
+  font-weight:700;
 }
-.hint{
-  font-size: 12px;
-  color: var(--ui-sub);
-}
+.hint{ color: var(--ui-sub); font-size:12px; }
 .text{
-  font-size: 20px;
-  line-height: 1.55;
-  color: var(--ui-text);
+  color:var(--ui-text);
+  font-size:22px;
+  line-height:1.55;
+  max-height: calc(100% - 36px);
   overflow:auto;
-  max-height: calc(100% - 54px);
-  padding-right: 6px;
+  padding-right:6px;
 }
 
-/* 信件面板 */
-.modal{
+/* 选项：不超过屏幕下方 1/3 */
+.choices{
   position:absolute;
-  inset:0;
-  z-index: 60;
+  left:50%;
+  transform:translateX(-50%);
+  bottom: calc(22px + env(safe-area-inset-bottom) + min(260px, 30vh) + 12px);
+  width: min(1180px, 92vw);
   display:flex;
-  align-items:center;
-  justify-content:center;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(8px);
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  z-index:45;
 }
-.modal-card{
-  width: min(900px, 92vw);
-  max-height: min(80vh, 80dvh);
-  background: rgba(20,20,26,0.85);
-  border: 1px solid var(--ui-border);
-  border-radius: 18px;
+.choice-btn{
+  border:1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.16);
+  color: var(--ui-text);
+  padding:12px 14px;
+  border-radius:14px;
+  cursor:pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size:16px;
+}
+.choice-btn:hover{ background: rgba(255,255,255,0.22); }
+
+/* 邮件面板 */
+.panel{
+  position:absolute;
+  top: calc(70px + env(safe-area-inset-top));
+  left:50%;
+  transform:translateX(-50%);
+  width: min(980px, 92vw);
+  height: min(520px, 60vh);
+  background: rgba(18,18,24,0.78);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:18px;
+  z-index:80;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   overflow:hidden;
 }
-.modal-header{
+.panel-head{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.12);
 }
-.modal-title{ font-weight: 650; }
-.modal-close{
-  appearance:none;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.10);
-  color: var(--ui-text);
-  width: 38px;
-  height: 34px;
-  border-radius: 12px;
-  cursor:pointer;
-}
-.modal-body{
-  padding: 14px;
+.panel-title{ color:var(--ui-text); font-weight:800; }
+.mail-list{
+  padding:12px 14px;
+  height: calc(100% - 52px);
   overflow:auto;
+  color:var(--ui-text);
 }
-.muted{ color: var(--ui-sub); }
+.mail-item{
+  border:1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:12px;
+  margin-bottom:10px;
+}
+.mail-title{ font-weight:800; margin-bottom:6px; }
+.mail-meta{ color:var(--ui-sub); font-size:12px; margin-bottom:8px; }
+.mail-body{ white-space:pre-wrap; line-height:1.55; }
 
-/* 手机适配：背景保持 cover；对话框更矮；按钮更紧凑；立绘更大更居中 */
+/* 存档条 */
+.savebar{
+  position:absolute;
+  right: calc(12px + env(safe-area-inset-right));
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  display:flex;
+  gap:10px;
+  z-index:55;
+}
+
+/* Toast */
+.toast{
+  position:absolute;
+  top: calc(12px + env(safe-area-inset-top));
+  right: calc(12px + env(safe-area-inset-right));
+  background: rgba(255,60,80,0.92);
+  color:#fff;
+  padding:10px 12px;
+  border-radius:12px;
+  z-index:200;
+  max-width: min(520px, 92vw);
+}
+
+/* 手机适配：立绘更居中更大、按钮别挡屏 */
 @media (max-width: 768px){
-  .hud{
-    top: max(8px, env(safe-area-inset-top));
-    left: max(8px, env(safe-area-inset-left));
-    gap: 8px;
+  .char-layer{
+    width: 92vw;
+    height: 56vh;           /* 手机别太高，给对话/选项留空间 */
   }
-  .hud-btn{
-    padding: 9px 12px;
-    border-radius: 12px;
-    font-size: 14px;
+  .text{
+    font-size:18px;
   }
-
   .textbox{
-    height: 28vh;          /* 手机上更少遮挡 */
-    max-height: 240px;
-    width: 94vw;
-    padding: 14px 14px;
+    height: min(240px, 32vh);
   }
-  .text{ font-size: 18px; }
-
   .choices{
-    width: 94vw;
-    bottom: calc(28vh + 12px);
-    justify-content: flex-start; /* 手机上选项靠左更好点 */
+    bottom: calc(22px + env(safe-area-inset-bottom) + min(240px, 32vh) + 10px);
+    justify-content:flex-start;
   }
-
-  .char-layer{
-    width: 92vw;           /* 手机上让人物更大 */
-    height: 70vh;          /* 让人物在上半屏也能看到 */
-    --char-x: 55%;         /* 稍微偏右一点（你可改 50%） */
+  .topbar{
+    gap:8px;
   }
-
-  .affection{
-    transform: scale(0.95);
-    transform-origin: left bottom;
-  }
-}
-
-/* 超宽屏：稍微放大立绘 */
-@media (min-width: 1400px){
-  .char-layer{
-    width: min(1200px, 62vw);
-    height: 94vh;
-    height: 94dvh;
+  .pill{
+    padding:9px 12px;
+    border-radius:12px;
   }
 }
