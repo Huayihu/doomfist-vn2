@@ -1,10 +1,9 @@
 :root{
   --ui-bg: rgba(18, 18, 24, 0.72);
+  --ui-bg2: rgba(20, 20, 28, 0.32);
   --ui-border: rgba(255, 255, 255, 0.18);
   --ui-text: rgba(255, 255, 255, 0.92);
   --ui-sub: rgba(255, 255, 255, 0.70);
-  --accent: rgba(190, 140, 255, 0.95);
-  --accent2: rgba(255, 140, 220, 0.95);
 }
 
 *{ box-sizing: border-box; }
@@ -17,7 +16,6 @@ html, body{
   background: #000;
 }
 
-/* 根容器 */
 #app, .app{
   position: relative;
   width: 100vw;
@@ -26,62 +24,72 @@ html, body{
   background: #000;
 }
 
-/* 背景层（必须 cover，手机才不会留黑边） */
-.bg{
+/* =========================
+   背景层（兼容 div 和 img）
+   ========================= */
+.bg, #bg, .background, #background, #bgLayer, .bg-layer{
   position:absolute;
   inset:0;
+  background-image: url("assets/bg.png"); /* 你确认是 bg.png */
   background-size: cover;
-  background-position: center center;
+  background-position: 50% 35%;
   background-repeat: no-repeat;
   transform: translateZ(0);
+  z-index: 0;
 }
 
-/* 顶部按钮区（你已有的话会覆盖同名） */
-.topbar{
+img#bg, img.bg, img#background, img.background{
   position:absolute;
-  top: 12px;
-  right: 16px;
-  display:flex;
-  gap: 12px;
-  z-index: 50;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  object-position: 50% 35%;
+  transform: translateZ(0);
+  z-index: 0;
 }
 
-/* ===== 立绘层：桌面端（按你现状保留） ===== */
+/* =========================
+   立绘层（电脑端默认）
+   ========================= */
 .char-layer{
   position:absolute;
   left: 10vw;
   bottom: 0;
-  width: min(1920px, 162vw);   /* 你现在的值 */
+  width: min(1920px, 162vw);
   height: 96vh;
   pointer-events:none;
   display:flex;
   align-items:flex-end;
   justify-content:flex-start;
-  z-index: 6;
+  z-index: 10;
   filter: drop-shadow(0 26px 50px rgba(0,0,0,0.50));
 }
 
-.char-img{
+/* 兼容：不管你 img 有没有 char-img 类，都能命中 */
+.char-img, .char-layer img{
   max-height: 100%;
-  max-width: 100%;
+  max-width: 140%;
   object-fit: contain;
   transform: translateY(6px);
   transform-origin: bottom left;
 }
 
-/* ===== 对话框（通用） ===== */
+/* =========================
+   对话框（如果你有 .dialog）
+   ========================= */
 .dialog{
   position:absolute;
   left: 10vw;
   right: 10vw;
   bottom: 16px;
-  height: 32vh;               /* 桌面默认高度 */
+  height: 32vh;
   background: var(--ui-bg);
   border: 1px solid var(--ui-border);
   border-radius: 18px;
   padding: 16px 16px 14px 16px;
   color: var(--ui-text);
-  z-index: 40;
+  z-index: 50;
   backdrop-filter: blur(10px);
 }
 
@@ -104,7 +112,7 @@ html, body{
   padding-right: 6px;
 }
 
-/* 选项区：默认放在对话框内部底部 */
+/* 选项区（如果你有 .choices/.choice-btn） */
 .choices{
   position:absolute;
   left: 16px;
@@ -114,10 +122,12 @@ html, body{
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  z-index: 55;
 }
 
 .choice-btn{
   appearance:none;
+  -webkit-appearance:none;
   border: 1px solid var(--ui-border);
   background: rgba(255,255,255,0.06);
   color: var(--ui-text);
@@ -127,120 +137,15 @@ html, body{
   cursor: pointer;
 }
 
-.choice-btn:active{
-  transform: translateY(1px);
-}
-
-/* ====== 重点：手机端适配（对话框不超过 1/3 屏） ====== */
-@media (max-width: 768px){
-
-  /* 处理手机地址栏/刘海：使用 100svh */
-  body{ height: 100svh; }
-  #app, .app{ height: 100svh; }
-
-  /* 背景：只保留中间主体（裁切而非拉伸） */
-  .bg{
-    background-size: cover;
-    background-position: 50% 35%;
-  }
-
-  /* 立绘：居中、放大、贴底；避免挡 UI */
-  .char-layer{
-    left: 50%;
-    bottom: 0;
-    width: 100vw;
-    height: 66svh;                  /* 立绘区占屏幕约 2/3 */
-    transform: translateX(-50%);
-    justify-content: center;
-    align-items: flex-end;
-    filter: drop-shadow(0 18px 30px rgba(0,0,0,0.45));
-  }
-  .char-img{
-    max-height: 100%;
-    max-width: 120%;
-    object-fit: contain;
-    transform: translateY(4px);
-    transform-origin: bottom center;
-  }
-
-  /* 顶部按钮：缩小并避开刘海 */
-  .topbar{
-    top: calc(10px + env(safe-area-inset-top));
-    right: 10px;
-    gap: 10px;
-    transform: scale(0.92);
-    transform-origin: top right;
-  }
-
-  /* ✅ 对话框高度：不超过 1/3 屏（核心要求） */
-  .dialog{
-    left: 4vw;
-    right: 4vw;
-    bottom: calc(8px + env(safe-area-inset-bottom));
-    height: 30svh;                  /* <= 1/3 */
-    padding: 12px 12px 10px 12px;
-    border-radius: 16px;
-  }
-
-  .dialog .name{
-    padding: 6px 10px;
-    border-radius: 12px;
-    margin-bottom: 8px;
-    font-size: 13px;
-  }
-
-  .dialog .text{
-    font-size: 15px;
-    line-height: 1.55;
-    max-height: calc(100% - 64px);  /* 给底部按钮留空间 */
-  }
-
-  /* ✅ 选项区：改成纵向列表，最多占用很少空间 */
-  .choices{
-    left: 12px;
-    right: 12px;
-    bottom: 10px;
-    justify-content: flex-end;
-    gap: 8px;
-  }
-
-  .choice-btn{
-    width: auto;
-    font-size: 13px;
-    padding: 8px 10px;
-    border-radius: 12px;
-  }
-}
-/* ===== HOTFIX: background layer selector compatibility ===== */
-
-/* 如果背景是一个 div 层 */
-.bg, #bg, .background, #background, #bgLayer, .bg-layer{
-  position: absolute;
-  inset: 0;
-  background-image: url("assets/bg.png"); /* 确保你的路径真的是 assets/bg.png */
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  z-index: 0;
-}
-
-/* 如果背景是 <img> */
-img#bg, img.bg, img#background, img.background{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
-  z-index: 0;
-}
-/* ===== HOTFIX: normalize button look (avoid browser default pill) ===== */
-button, .btn, a.btn, input[type="button"]{
+/* =========================
+   全局按钮外观兜底（解决“白色胶囊默认按钮”）
+   ========================= */
+button, .btn, a.btn, input[type="button"], input[type="submit"]{
   appearance: none;
   -webkit-appearance: none;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.92);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-bg2);
+  color: var(--ui-text);
   border-radius: 14px;
   padding: 10px 12px;
   font-size: 14px;
@@ -249,50 +154,132 @@ button, .btn, a.btn, input[type="button"]{
   backdrop-filter: blur(10px);
 }
 
-button:active{
+button:active, .choice-btn:active{
   transform: translateY(1px);
 }
 
-/* 顶部按钮区：如果你实际有 topbar，就让它固定到右上 */
-.topbar, #topbar, .top-bar{
-  position: absolute;
+/* =========================
+   控制区兜底：把“按钮集合容器”固定到左上
+   兼容：#controls/.controls/.actions/.buttons/.btns/.control
+   ========================= */
+#controls, .controls, .actions, .buttons, .btns, .control{
+  position:absolute;
   top: 12px;
-  right: 12px;
-  display: flex;
+  left: 12px;
+  display:flex;
+  flex-direction: column;
   gap: 10px;
-  z-index: 50;
+  z-index: 55;
 }
 
-/* 移动端：顶栏避开刘海 */
+#controls .row, .controls .row, .actions .row, .buttons .row, .btns .row{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* 如果你有 topbar（另一些版本会用），也保证它在右上 */
+.topbar, #topbar, .top-bar{
+  position:absolute;
+  top: 12px;
+  right: 12px;
+  display:flex;
+  gap: 10px;
+  z-index: 55;
+}
+
+/* =========================
+   分层兜底：避免遮罩盖死（手机黑屏常见原因）
+   ========================= */
+.dialog, .ui, .hud{ z-index: 50; }
+
+.overlay, .modal, .panel, .mail, .letter, .mail-panel, .menu, .drawer{
+  z-index: 60;
+}
+
+/* 默认不要用纯黑盖屏（除非你 JS 主动控制 display/opacity） */
+.overlay, .modal{
+  background: transparent;
+}
+
+/* =========================
+   移动端：关键适配（避免黑屏 + 对话框<=1/3 + 立绘居中放大）
+   ========================= */
 @media (max-width: 768px){
+  body{ height: 100svh; }
+  #app, .app{ height: 100svh; }
+
+  /* 背景必须可见 + 裁切而非拉伸 */
+  .bg, #bg, .background, #background, #bgLayer, .bg-layer{
+    background-size: cover !important;
+    background-position: 50% 35% !important;
+  }
+  img#bg, img.bg, img#background, img.background{
+    object-fit: cover !important;
+    object-position: 50% 35% !important;
+  }
+
+  /* 立绘：居中 + 更大 + 贴底 */
+  .char-layer{
+    left: 50% !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 72svh !important;
+    transform: translateX(-50%) !important;
+    justify-content: center !important;
+    align-items: flex-end !important;
+    filter: drop-shadow(0 18px 30px rgba(0,0,0,0.45));
+  }
+
+  .char-img, .char-layer img{
+    max-height: 100% !important;
+    max-width: 160% !important;
+    object-fit: contain !important;
+    transform: translateY(4px) !important;
+    transform-origin: bottom center !important;
+  }
+
+  /* 对话框：不超过 1/3 屏 */
+  .dialog{
+    left: 4vw !important;
+    right: 4vw !important;
+    bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+    height: 30svh !important;
+    padding: 12px 12px 10px 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .dialog .name{
+    padding: 6px 10px !important;
+    border-radius: 12px !important;
+    margin-bottom: 8px !important;
+    font-size: 13px !important;
+  }
+
+  .dialog .text{
+    font-size: 15px !important;
+    line-height: 1.55 !important;
+    max-height: calc(100% - 64px) !important;
+  }
+
+  /* 控制区：避开刘海 */
+  #controls, .controls, .actions, .buttons, .btns, .control{
+    top: calc(10px + env(safe-area-inset-top)) !important;
+    left: 10px !important;
+    transform: scale(0.92);
+    transform-origin: top left;
+    max-width: 92vw;
+  }
+
   .topbar, #topbar, .top-bar{
-    top: calc(10px + env(safe-area-inset-top));
-    right: 10px;
+    top: calc(10px + env(safe-area-inset-top)) !important;
+    right: 10px !important;
     transform: scale(0.92);
     transform-origin: top right;
   }
-}
-/* ===== HOTFIX: character image selector compatibility ===== */
-.char-layer img{
-  max-height: 100%;
-  max-width: 140%;
-  object-fit: contain;
-}
 
-/* Mobile: make character larger & centered */
-@media (max-width: 768px){
-  .char-layer{
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: 100vw !important;
-    height: 72svh !important;
-    bottom: 0 !important;
-    justify-content: center !important;
-    align-items: flex-end !important;
-  }
-  .char-layer img{
-    max-height: 100% !important;
-    max-width: 160% !important;
+  /* 遮罩类：手机端强制透明，避免黑屏盖住 */
+  .overlay, .modal, .panel, .mail, .letter, .mail-panel, .menu, .drawer{
+    background: transparent !important;
   }
 }
-
