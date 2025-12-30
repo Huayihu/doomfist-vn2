@@ -1,0 +1,67 @@
+{
+  "start": "intro",
+  "nodes": {
+    "intro": {
+      "speaker": "旁白",
+      "sprite": "A",
+      "text": "你推开门，空气里有一股金属与玫瑰的味道。\\n他站在光里，没有回头。",
+      "choices": [
+        { "text": "（冷静）你是谁？你想要什么？", "next": "q1_cold", "affectionDelta": 0 },
+        { "text": "（不耐烦）你凭什么喊我来？", "next": "q1_rude", "affectionDelta": -2 },
+        { "text": "（试探）如果我拒绝呢？", "next": "q1_test", "affectionDelta": +1 }
+      ]
+    },
+    "q1_cold": {
+      "speaker": "Doomfist",
+      "sprite": "A",
+      "text": "很好。你先问目的，而不是恐惧。\\n我需要一个能做决定的人。",
+      "choices": [
+        { "text": "继续听下去。", "next": "q2", "affectionDelta": +1 },
+        { "text": "我不感兴趣。", "next": "end_leave", "affectionDelta": -1 }
+      ]
+    },
+    "q1_rude": {
+      "speaker": "Doomfist",
+      "sprite": "B",
+      "text": "脾气不错……但分寸很差。\\n如果你要发火，就把火用在对的地方。",
+      "choices": [
+        { "text": "……说正事。", "next": "q2", "affectionDelta": 0 },
+        { "text": "我走了。", "next": "end_leave", "affectionDelta": -2 }
+      ]
+    },
+    "q1_test": {
+      "speaker": "Doomfist",
+      "sprite": "A",
+      "text": "你可以拒绝。\\n只是拒绝之后，你得承担后果——这就是选择。",
+      "choices": [
+        { "text": "行，那我听。", "next": "q2", "affectionDelta": +1 },
+        { "text": "我拒绝。", "next": "end_leave", "affectionDelta": -1 }
+      ]
+    },
+    "q2": {
+      "speaker": "旁白",
+      "sprite": "A",
+      "text": "他把一封信推到你面前，指尖敲了敲桌面。\\n你注意到那朵玫瑰别在他胸前，红得过分。",
+      "choices": [
+        { "text": "（伸手）我看看信。", "next": "end_mid", "affectionDelta": +2 },
+        { "text": "（盯着他）先回答我一个问题。", "next": "end_mid", "affectionDelta": +1 }
+      ]
+    },
+    "end_leave": {
+      "speaker": "旁白",
+      "sprite": "B",
+      "text": "你离开时，背后没有脚步声追来。\\n但你知道，那道目光一直在。",
+      "choices": [
+        { "text": "【重新开始】", "next": "intro", "affectionDelta": 0 }
+      ]
+    },
+    "end_mid": {
+      "speaker": "Doomfist",
+      "sprite": "A",
+      "text": "【普通结局】临界点\\n（点 RESET 重新开始）",
+      "choices": [
+        { "text": "【重新开始】", "next": "intro", "affectionDelta": 0 }
+      ]
+    }
+  }
+}
