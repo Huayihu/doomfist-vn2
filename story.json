@@ -1,13 +1,12 @@
 {
-  "meta": {
-    "title": "昨日偶遇：末日铁拳",
-    "start": "node_start"
-  },
+  "start": "node_start",
+
   "state": {
     "affection": 0,
     "trust": 0,
     "unread": 0
   },
+
   "nodes": {
     "node_start": {
       "speaker": "旁白",
@@ -36,18 +35,18 @@
           "id": "c3",
           "text": "继续听他说下去",
           "onDelta": 1,
-          "next": "node_mail_trigger"
+          "next": "node_mail"
         },
         {
           "id": "c4",
           "text": "沉默",
           "onDelta": 0,
-          "next": "node_mail_trigger"
+          "next": "node_mail"
         }
       ]
     },
 
-    "node_mail_trigger": {
+    "node_mail": {
       "speaker": "旁白",
       "text": "你的终端轻微震动了一下。",
       "mail": {
