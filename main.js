@@ -1,212 +1,347 @@
-const $ = (sel) => document.querySelector(sel);
+/* ====== 基础状态 ====== */
+const STATE_KEY = "vn_demo_state_v1";
 
-const state = {
-  story: null,
-  nodeId: null,
-  affection: 0,
-  unreadMail: 0,
-  mode: "chat"
+let story = null;
+let currentNodeId = null;
+
+let affection = 0;
+let mails = [];        // {title, from, body, read, id}
+let unread = 0;
+
+const $ = (id) => document.getElementById(id);
+
+const el = {
+  charImg: $("charImg"),
+  speaker: $("speaker"),
+  text: $("text"),
+  textbox: $("textbox"),
+  choices: $("choices"),
+  affValue: $("affValue"),
+  affFill: $("affFill"),
+  mailBadge: $("mailBadge"),
+  mailPanel: $("mailPanel"),
+  mailList: $("mailList"),
+  toast: $("toast"),
+  btnChat: $("btnChat"),
+  btnMail: $("btnMail"),
+  btnReset: $("btnReset"),
+  btnSave: $("btnSave"),
+  btnLoad: $("btnLoad"),
+  mailClose: $("mailClose")
 };
 
-const dom = {
-  charImg: $("#charImg"),
-  speaker: $("#speaker"),
-  text: $("#text"),
-  textbox: $("#textbox"),
-  choices: $("#choices"),
-  affValue: $("#affValue"),
-  affFill: $("#affFill"),
-  btnChat: $("#btnChat"),
-  btnMail: $("#btnMail"),
-  btnReset: $("#btnReset"),
-  mailBadge: $("#mailBadge"),
-  mailPanel: $("#mailPanel"),
-  btnCloseMail: $("#btnCloseMail"),
-  mailList: $("#mailList")
-};
-
-// === 你 assets 里现在是 charA.png / charB.png（从你截图看 charB 已有）===
-const SPRITES = {
-  A: "assets/charA.png",
-  B: "assets/charB.png"
-};
-
-const AFF_MAX_FOR_BAR = 30;
+/* ====== 工具 ====== */
+function showToast(msg){
+  el.toast.textContent = msg;
+  el.toast.classList.remove("hidden");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=> el.toast.classList.add("hidden"), 2600);
+}
 
 function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
-function setAffection(v){
-  state.affection = v;
-  if (dom.affValue) dom.affValue.textContent = String(state.affection);
-  if (dom.affFill){
-    const pct = clamp((state.affection / AFF_MAX_FOR_BAR) * 100, 0, 100);
-    dom.affFill.style.width = `${pct}%`;
+function updateAffUI(){
+  el.affValue.textContent = String(affection);
+  // 视觉条：把 -10~+30 映射到 0~100（你后面可以自己改范围）
+  const pct = ((clamp(affection, -10, 30) + 10) / 40) * 100;
+  el.affFill.style.width = `${pct}%`;
+}
+
+function updateMailUI(){
+  unread = mails.filter(m => !m.read).length;
+  if(unread > 0){
+    el.mailBadge.textContent = String(unread);
+    el.mailBadge.classList.remove("hidden");
+  }else{
+    el.mailBadge.classList.add("hidden");
   }
-}
 
-function setUnreadMail(n){
-  state.unreadMail = n;
-  if (!dom.mailBadge) return;
-  if (n > 0){
-    dom.mailBadge.classList.remove("hidden");
-    dom.mailBadge.textContent = String(n);
-  } else {
-    dom.mailBadge.classList.add("hidden");
-  }
-}
-
-function setMode(mode){
-  state.mode = mode;
-  dom.btnChat?.classList.toggle("is-active", mode === "chat");
-  dom.btnMail?.classList.toggle("is-active", mode === "mail");
-
-  if (!dom.mailPanel) return;
-  if (mode === "mail") dom.mailPanel.classList.remove("hidden");
-  else dom.mailPanel.classList.add("hidden");
-}
-
-function showStatusTag(text, isError=false){
-  let tag = document.getElementById("statusTag");
-  if (!tag){
-    tag = document.createElement("div");
-    tag.id = "statusTag";
-    tag.style.position = "fixed";
-    tag.style.top = "8px";
-    tag.style.right = "8px";
-    tag.style.zIndex = "9999";
-    tag.style.padding = "6px 10px";
-    tag.style.borderRadius = "10px";
-    tag.style.fontSize = "12px";
-    tag.style.backdropFilter = "blur(8px)";
-    tag.style.border = "1px solid rgba(255,255,255,0.18)";
-    tag.style.background = "rgba(0,0,0,0.35)";
-    tag.style.color = "white";
-    document.body.appendChild(tag);
-  }
-  tag.textContent = text;
-  tag.style.background = isError ? "rgba(180,0,40,0.55)" : "rgba(0,80,40,0.45)";
-}
-
-function renderChoices(choices){
-  if (!dom.choices) return;
-  dom.choices.innerHTML = "";
-
-  if (!choices || choices.length === 0){
-    dom.choices.classList.add("hidden");
+  el.mailList.innerHTML = "";
+  if(mails.length === 0){
+    el.mailList.innerHTML = `<div style="color:rgba(255,255,255,0.75)">暂无信件（在 story.json 的节点里用 mailAdd 添加）</div>`;
     return;
   }
-  dom.choices.classList.remove("hidden");
 
-  for (const c of choices){
-    const btn = document.createElement("button");
-    btn.className = "choice-btn";
-    btn.textContent = c.text;
+  mails.slice().reverse().forEach((m, idx) => {
+    const item = document.createElement("div");
+    item.className = "mail-item";
+    item.innerHTML = `
+      <div class="mail-title">${m.read ? "" : "（未读）"}${escapeHtml(m.title)}</div>
+      <div class="mail-meta">From: ${escapeHtml(m.from)}</div>
+      <div class="mail-body">${escapeHtml(m.body)}</div>
+      <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="pill small" data-act="toggleRead" data-id="${m.id}">${m.read ? "标为未读" : "标为已读"}</button>
+        <button class="pill small" data-act="delete" data-id="${m.id}">删除</button>
+      </div>
+    `;
+    el.mailList.appendChild(item);
+  });
 
-    btn.addEventListener("click", (e) => {
+  el.mailList.querySelectorAll("button[data-act]").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
       e.stopPropagation();
-      const delta = Number(c.affectionDelta || 0);
-      setAffection(state.affection + delta);
-      renderNode(c.next);
+      const id = btn.getAttribute("data-id");
+      const act = btn.getAttribute("data-act");
+      const i = mails.findIndex(x => x.id === id);
+      if(i < 0) return;
+      if(act === "toggleRead"){
+        mails[i].read = !mails[i].read;
+      }else if(act === "delete"){
+        mails.splice(i,1);
+      }
+      persist();
+      updateMailUI();
     });
+  });
+}
 
-    dom.choices.appendChild(btn);
+function escapeHtml(s){
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;")
+    .replaceAll("\n","<br/>");
+}
+
+function persist(){
+  const state = {
+    currentNodeId,
+    affection,
+    mails
+  };
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
+}
+
+function loadPersist(){
+  try{
+    const raw = localStorage.getItem(STATE_KEY);
+    if(!raw) return false;
+    const s = JSON.parse(raw);
+    if(!s || !s.currentNodeId) return false;
+    currentNodeId = s.currentNodeId;
+    affection = Number.isFinite(s.affection) ? s.affection : 0;
+    mails = Array.isArray(s.mails) ? s.mails : [];
+    return true;
+  }catch{
+    return false;
   }
 }
 
-function renderNode(nodeId){
-  if (!state.story?.nodes) return;
+/* ====== VN 渲染逻辑 ====== */
+function setChar(src){
+  if(src) el.charImg.src = src;
+}
 
-  const node = state.story.nodes[nodeId];
-  if (!node){
-    dom.speaker.textContent = "ERROR";
-    dom.text.textContent = `找不到节点：${nodeId}`;
-    renderChoices([]);
+function setText(speaker, textHtml){
+  el.speaker.textContent = speaker || "旁白";
+  el.text.innerHTML = textHtml || "";
+}
+
+function hideChoices(){
+  el.choices.classList.add("hidden");
+  el.choices.innerHTML = "";
+}
+
+function showChoices(choices){
+  el.choices.innerHTML = "";
+  el.choices.classList.remove("hidden");
+
+  choices.forEach(ch=>{
+    const b = document.createElement("button");
+    b.className = "choice-btn";
+    b.textContent = ch.text || "（无文本）";
+    b.addEventListener("click", (e)=>{
+      e.stopPropagation();
+
+      // 好感变化
+      const d = Number(ch.affectionDelta || 0);
+      if(Number.isFinite(d) && d !== 0){
+        affection += d;
+        updateAffUI();
+      }
+
+      // 跳转
+      if(ch.next){
+        gotoNode(ch.next);
+      }
+    });
+    el.choices.appendChild(b);
+  });
+}
+
+function applyMailAdd(node){
+  const arr = node.mailAdd;
+  if(!Array.isArray(arr) || arr.length === 0) return;
+
+  arr.forEach(m=>{
+    const mail = {
+      id: cryptoRandomId(),
+      title: m.title || "信件",
+      from: m.from || "未知",
+      body: m.body || "",
+      read: false
+    };
+    mails.push(mail);
+  });
+  persist();
+  updateMailUI();
+}
+
+function cryptoRandomId(){
+  // 兼容性好一点
+  return "m_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+}
+
+function gotoNode(id){
+  const node = story.nodes[id];
+  if(!node){
+    showToast(`节点不存在：${id}`);
+    return;
+  }
+  currentNodeId = id;
+
+  // 立绘
+  if(node.char) setChar(node.char);
+
+  // 邮件
+  applyMailAdd(node);
+
+  // 文本（text 可以是字符串或数组）
+  let textHtml = "";
+  if(Array.isArray(node.text)){
+    textHtml = node.text.map(line => escapeHtml(line)).join("<br/><br/>");
+  }else{
+    textHtml = escapeHtml(node.text || "");
+  }
+  setText(node.speaker, textHtml);
+
+  // 选项 / next
+  hideChoices();
+  if(Array.isArray(node.choices) && node.choices.length > 0){
+    showChoices(node.choices);
+  }
+
+  updateAffUI();
+  persist();
+}
+
+function advance(){
+  const node = story.nodes[currentNodeId];
+  if(!node) return;
+
+  // 有选项时，不自动 next（必须点选项）
+  if(Array.isArray(node.choices) && node.choices.length > 0){
     return;
   }
 
-  state.nodeId = nodeId;
-
-  dom.speaker.textContent = node.speaker ?? "旁白";
-  dom.text.textContent = node.text ?? "";
-
-  const spriteKey = node.sprite ?? "A";
-  if (dom.charImg){
-    dom.charImg.src = SPRITES[spriteKey] || SPRITES.A;
+  if(node.next){
+    gotoNode(node.next);
   }
-
-  renderChoices(node.choices || []);
 }
 
+/* ====== 初始化 ====== */
 async function loadStory(){
-  // 强制绕过缓存，避免 Pages 还在读旧文件
-  const url = `story.json?v=${Date.now()}`;
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok){
-    throw new Error(`story.json 请求失败：HTTP ${res.status}`);
-  }
-  const text = await res.text();
-
-  // 明确提示 JSON 语法问题
   try{
-    return JSON.parse(text);
-  }catch(e){
-    throw new Error(`story.json 不是合法 JSON：${e.message}`);
-  }
-}
+    const res = await fetch("story.json", { cache: "no-store" });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
 
-function resetGame(){
-  setAffection(0);
-  setUnreadMail(1);     // 你想默认有信就 1；不想就 0
-  setMode("chat");
-
-  // 防止 story 未加载时 reset 报错
-  if (!state.story?.start){
-    dom.speaker.textContent = "ERROR";
-    dom.text.textContent = "Story 未加载，无法开始。";
-    return;
-  }
-  renderNode(state.story.start);
-}
-
-function initEvents(){
-  // 点击对话框继续：若有选项就不跳，避免误点
-  dom.textbox?.addEventListener("click", () => {
-    const node = state.story?.nodes?.[state.nodeId];
-    const hasChoices = node?.choices?.length > 0;
-    if (hasChoices) return;
-  });
-
-  dom.btnChat?.addEventListener("click", () => setMode("chat"));
-  dom.btnMail?.addEventListener("click", () => setMode("mail"));
-  dom.btnCloseMail?.addEventListener("click", () => setMode("chat"));
-  dom.btnReset?.addEventListener("click", resetGame);
-
-  dom.mailPanel?.addEventListener("click", (e) => {
-    if (e.target === dom.mailPanel) setMode("chat");
-  });
-}
-
-(async function boot(){
-  try{
-    initEvents();
-    showStatusTag("Booting...");
-
-    state.story = await loadStory();
-    showStatusTag("Loaded ✓");
-
-    // 验证 story 结构
-    if (!state.story.start || !state.story.nodes){
+    if(!data || !data.start || !data.nodes){
       throw new Error("story.json 缺少 start 或 nodes 字段");
     }
-
-    resetGame();
+    story = data;
   }catch(err){
-    console.error(err);
-    showStatusTag("ERROR ✗", true);
-    if (dom.speaker) dom.speaker.textContent = "ERROR";
-    if (dom.text) dom.text.textContent = String(err?.message || err);
-    if (dom.choices) dom.choices.classList.add("hidden");
-    // 出错时也把邮件显示出来，方便你确认 UI 是否工作
-    setUnreadMail(1);
+    // 把错误直接显示到对话框里，方便你排查
+    setText("ERROR", `story.json 读取失败：${escapeHtml(err.message || String(err))}`);
+    showToast("story.json 读取失败（看对话框错误信息）");
+    return false;
+  }
+  return true;
+}
+
+function resetAll(){
+  localStorage.removeItem(STATE_KEY);
+  affection = 0;
+  mails = [];
+  updateAffUI();
+  updateMailUI();
+  gotoNode(story.start);
+}
+
+function openMail(){
+  el.mailPanel.classList.remove("hidden");
+  updateMailUI();
+}
+function closeMail(){
+  el.mailPanel.classList.add("hidden");
+}
+
+/* 事件绑定：确保“点不动”不会发生 */
+function bindEvents(){
+  // 点击对话框推进
+  el.textbox.addEventListener("click", ()=> advance());
+  // 点击背景也推进（但点到按钮/面板不推进）
+  $("app").addEventListener("click", (e)=>{
+    const tag = e.target;
+    const inPanel = tag.closest(".panel");
+    const inButton = tag.closest("button");
+    const inChoices = tag.closest(".choices");
+    if(inPanel || inButton || inChoices) return;
+    advance();
+  });
+
+  el.btnChat.addEventListener("click", ()=>{
+    closeMail();
+    // 回到对话视觉（不改节点）
+    showToast("聊天界面");
+  });
+
+  el.btnMail.addEventListener("click", ()=> openMail());
+  el.mailClose.addEventListener("click", ()=> closeMail());
+
+  el.btnReset.addEventListener("click", ()=>{
+    resetAll();
+    showToast("已重置");
+  });
+
+  el.btnSave.addEventListener("click", ()=>{
+    persist();
+    showToast("已存档");
+  });
+
+  el.btnLoad.addEventListener("click", ()=>{
+    const ok = loadPersist();
+    if(ok){
+      updateAffUI();
+      updateMailUI();
+      gotoNode(currentNodeId);
+      showToast("已读档");
+    }else{
+      showToast("没有可用存档");
+    }
+  });
+
+  // 适配：窗口变化时不需要额外处理（CSS 已做）
+}
+
+/* 启动 */
+(async function init(){
+  bindEvents();
+  const ok = await loadStory();
+  if(!ok) return;
+
+  // 读档优先
+  const hasSave = loadPersist();
+  updateAffUI();
+  updateMailUI();
+
+  if(hasSave){
+    gotoNode(currentNodeId);
+  }else{
+    affection = 0;
+    mails = [];
+    gotoNode(story.start);
   }
 })();
