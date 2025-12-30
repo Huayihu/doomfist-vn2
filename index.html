@@ -2,104 +2,62 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>心动之箭：末日铁拳</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="data:," />
 </head>
 <body>
   <div id="app" class="app">
-    <!-- 背景（可点继续） -->
-    <div id="bg" class="bg"></div>
-
-    <!-- 震动层 -->
-    <div id="shakeLayer" class="shake-layer"></div>
+    <!-- 背景 -->
+    <div class="bg" id="bg" aria-hidden="true"></div>
 
     <!-- 立绘层 -->
     <div class="char-layer" aria-hidden="true">
-      <img id="charImg" class="char-img" src="assets/doomfist_calm.png" alt="">
+      <img id="charImg" class="char-img" src="assets/charA.png" alt="" />
     </div>
 
-    <!-- 顶部HUD -->
+    <!-- 顶部按钮（聊天/信件/RESET） -->
     <div class="hud">
-      <div class="hud-left">
-        <span class="badge">昨日偶遇</span>
-        <span class="title">末日铁拳</span>
-      </div>
-
-      <div class="hud-right">
-        <button class="hud-btn active" id="tabChat">聊天</button>
-
-        <button class="hud-btn" id="tabMail">
-          信件
-          <span id="mailBadge" class="mail-badge hidden">0</span>
-        </button>
-
-        <button class="hud-btn" id="btnReset" title="重开">RESET</button>
-      </div>
+      <button id="btnChat" class="hud-btn is-active">聊天</button>
+      <button id="btnMail" class="hud-btn">信件 <span id="mailBadge" class="badge hidden">0</span></button>
+      <button id="btnReset" class="hud-btn">RESET</button>
     </div>
 
     <!-- 左下角好感度 -->
     <div class="affection">
-      <div class="heart">❤</div>
-      <div class="aff-text">
-        <div class="aff-label">好感度</div>
-        <div id="affValue" class="aff-value">0</div>
-      </div>
       <div class="aff-bar">
         <div id="affFill" class="aff-fill"></div>
       </div>
-      <div id="affDelta" class="aff-delta hidden">+0</div>
+      <div class="aff-text">好感度 <span id="affValue">0</span></div>
     </div>
 
-    <!-- 信件面板（默认隐藏） -->
-    <div id="mailPanel" class="mail hidden" role="dialog" aria-label="信件面板">
-      <div class="mail-header">
-        <div class="mail-title">信件</div>
-        <button id="mailClose" class="mail-close" title="关闭">✕</button>
-      </div>
-
-      <div class="mail-main">
-        <div class="mail-list" id="mailList"></div>
-
-        <div class="mail-view">
-          <div id="mailSubject" class="mail-subject">（无）</div>
-          <div id="mailMeta" class="mail-meta"></div>
-          <div id="mailContent" class="mail-content"></div>
-          <div id="mailSign" class="mail-sign"></div>
-
-          <div class="mail-footer">
-            <button id="mailMarkRead" class="mail-btn">标为已读</button>
-            <button id="mailPrev" class="mail-btn">上一封</button>
-            <button id="mailNext" class="mail-btn">下一封</button>
-          </div>
+    <!-- 信件面板（可先空着，后面你再做UI图也行） -->
+    <div id="mailPanel" class="modal hidden" role="dialog" aria-label="信件">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">信件</div>
+          <button id="btnCloseMail" class="modal-close">×</button>
+        </div>
+        <div id="mailList" class="modal-body">
+          <div class="muted">暂无信件（后面可接入 story.json 的邮件系统）</div>
         </div>
       </div>
     </div>
 
-    <!-- 选项 -->
+    <!-- 选项（显示在对话框上方一行） -->
     <div id="choices" class="choices hidden"></div>
 
-    <!-- 对话框 -->
+    <!-- 对话框（底部，不超过屏幕1/3；点击继续） -->
     <div id="textbox" class="textbox">
-      <div class="name-row">
-        <span id="speaker" class="speaker">旁白</span>
-        <span class="hint">点击背景或对话框继续</span>
+      <div class="tb-top">
+        <div id="speaker" class="speaker">旁白</div>
+        <div id="hint" class="hint">点击对话框继续</div>
       </div>
-
       <div id="text" class="text"></div>
-
-      <div class="controls">
-        <button id="btnBack" class="ctrl">回看</button>
-        <button id="btnSave" class="ctrl">存档</button>
-        <button id="btnLoad" class="ctrl">读档</button>
-      </div>
-
-      <div id="debug" class="hint debug"></div>
     </div>
+
   </div>
 
   <script src="main.js"></script>
 </body>
 </html>
-
