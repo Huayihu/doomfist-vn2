@@ -1,95 +1,69 @@
 {
-  "start": "node_start",
-
-  "state": {
-    "affection": 0,
-    "trust": 0,
-    "unread": 0
-  },
-
+  "start": "intro",
   "nodes": {
-    "node_start": {
+    "intro": {
       "speaker": "旁白",
-      "text": "你站在樱花树下，他已经在那里等你。",
-      "choices": [
-        {
-          "id": "c1",
-          "text": "（冷静）你是谁？",
-          "onDelta": 1,
-          "next": "node_intro"
-        },
-        {
-          "id": "c2",
-          "text": "（警惕）你想做什么？",
-          "onDelta": -1,
-          "next": "node_intro"
-        }
-      ]
+      "char": "assets/charA.png",
+      "text": [
+        "你站在樱花树下，他已经在那里等你。",
+        "他没有说话，只是把墨镜轻轻抬了抬。"
+      ],
+      "next": "q1"
     },
-
-    "node_intro": {
-      "speaker": "末日铁拳",
-      "text": "名字不重要。重要的是，你现在站在这里。",
-      "choices": [
-        {
-          "id": "c3",
-          "text": "继续听他说下去",
-          "onDelta": 1,
-          "next": "node_mail"
-        },
-        {
-          "id": "c4",
-          "text": "沉默",
-          "onDelta": 0,
-          "next": "node_mail"
-        }
-      ]
-    },
-
-    "node_mail": {
+    "q1": {
       "speaker": "旁白",
-      "text": "你的终端轻微震动了一下。",
-      "mail": {
-        "id": "mail_1",
-        "title": "来自陌生人的信",
-        "content": "如果你能读到这封信，说明你已经做出了选择。",
-        "onReceive": {
-          "unread": 1
-        }
-      },
+      "text": "你准备怎么开口？",
       "choices": [
-        {
-          "id": "c5",
-          "text": "查看信件",
-          "onDelta": 0,
-          "next": "node_after_mail"
-        }
+        { "text": "（冷静）你是谁？", "next": "a1", "affectionDelta": 1 },
+        { "text": "（警惕）你想做什么？", "next": "a2", "affectionDelta": -1 }
       ]
     },
-
-    "node_after_mail": {
-      "speaker": "末日铁拳",
-      "text": "看来，你并不害怕未知。",
-      "choices": [
+    "a1": {
+      "speaker": "Doomfist",
+      "char": "assets/charB.png",
+      "text": [
+        "我是谁不重要。",
+        "重要的是——你来得比我想象中更快。"
+      ],
+      "mailAdd": [
         {
-          "id": "c6",
-          "text": "我只是想弄清楚真相",
-          "onDelta": 1,
-          "next": "node_end"
-        },
-        {
-          "id": "c7",
-          "text": "我只是路过",
-          "onDelta": -1,
-          "next": "node_end"
+          "title": "未读信件",
+          "from": "末日铁拳",
+          "body": "嗨，亲爱的安娜。\n\n见字如面。还记得上钩拳的滋味吗？我们已经很久没有起飞了。\n为纪念我们的友情，请到阿尔托大饭店 666 包厢。\n我带了你最爱的东西。\n\n——末日铁拳"
         }
-      ]
+      ],
+      "next": "q2"
     },
-
-    "node_end": {
+    "a2": {
+      "speaker": "Doomfist",
+      "char": "assets/charB.png",
+      "text": [
+        "你很谨慎。",
+        "这很好。谨慎的人通常活得更久。"
+      ],
+      "next": "q2"
+    },
+    "q2": {
       "speaker": "旁白",
-      "text": "风吹过樱花，你意识到这次相遇不会轻易结束。",
-      "end": true
+      "text": "他向你伸出手。你会——",
+      "choices": [
+        { "text": "握住他的手", "next": "end_good", "affectionDelta": 2 },
+        { "text": "后退一步", "next": "end_mid", "affectionDelta": -1 }
+      ]
+    },
+    "end_good": {
+      "speaker": "旁白",
+      "text": [
+        "你握住他的手，掌心温度让你短暂忘记了戒备。",
+        "【结局】樱花落下，他说：从现在开始，别走丢。"
+      ]
+    },
+    "end_mid": {
+      "speaker": "旁白",
+      "text": [
+        "你后退一步，背后没有脚步声追来。",
+        "但你知道，那道目光一直在。"
+      ]
     }
   }
 }
