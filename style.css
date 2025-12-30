@@ -211,3 +211,88 @@ html, body{
     border-radius: 12px;
   }
 }
+/* ===== HOTFIX: background layer selector compatibility ===== */
+
+/* 如果背景是一个 div 层 */
+.bg, #bg, .background, #background, #bgLayer, .bg-layer{
+  position: absolute;
+  inset: 0;
+  background-image: url("assets/bg.png"); /* 确保你的路径真的是 assets/bg.png */
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+/* 如果背景是 <img> */
+img#bg, img.bg, img#background, img.background{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  z-index: 0;
+}
+/* ===== HOTFIX: normalize button look (avoid browser default pill) ===== */
+button, .btn, a.btn, input[type="button"]{
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.92);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+button:active{
+  transform: translateY(1px);
+}
+
+/* 顶部按钮区：如果你实际有 topbar，就让它固定到右上 */
+.topbar, #topbar, .top-bar{
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 10px;
+  z-index: 50;
+}
+
+/* 移动端：顶栏避开刘海 */
+@media (max-width: 768px){
+  .topbar, #topbar, .top-bar{
+    top: calc(10px + env(safe-area-inset-top));
+    right: 10px;
+    transform: scale(0.92);
+    transform-origin: top right;
+  }
+}
+/* ===== HOTFIX: character image selector compatibility ===== */
+.char-layer img{
+  max-height: 100%;
+  max-width: 140%;
+  object-fit: contain;
+}
+
+/* Mobile: make character larger & centered */
+@media (max-width: 768px){
+  .char-layer{
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 100vw !important;
+    height: 72svh !important;
+    bottom: 0 !important;
+    justify-content: center !important;
+    align-items: flex-end !important;
+  }
+  .char-layer img{
+    max-height: 100% !important;
+    max-width: 160% !important;
+  }
+}
+
