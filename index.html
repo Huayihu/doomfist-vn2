@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>心动之箭：末日铁拳</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- 背景（可点继续） -->
+    <div id="bg" class="bg"></div>
+
+    <!-- 震动层 -->
+    <div id="shakeLayer" class="shake-layer"></div>
+
+    <!-- 立绘层 -->
+    <div class="char-layer" aria-hidden="true">
+      <img id="charImg" class="char-img" src="assets/doomfist_calm.png" alt="">
+    </div>
+
+    <!-- 顶部HUD -->
+    <div class="hud">
+      <div class="hud-left">
+        <span class="badge">昨日偶遇</span>
+        <span class="title">末日铁拳</span>
+      </div>
+
+      <div class="hud-right">
+        <button class="hud-btn active" id="tabChat">聊天</button>
+
+        <button class="hud-btn" id="tabMail">
+          信件
+          <span id="mailBadge" class="mail-badge hidden">0</span>
+        </button>
+
+        <button class="hud-btn" id="btnReset" title="重开">RESET</button>
+      </div>
+    </div>
+
+    <!-- 左下角好感度 -->
+    <div class="affection">
+      <div class="heart">❤</div>
+      <div class="aff-text">
+        <div class="aff-label">好感度</div>
+        <div id="affValue" class="aff-value">0</div>
+      </div>
+      <div class="aff-bar">
+        <div id="affFill" class="aff-fill"></div>
+      </div>
+      <div id="affDelta" class="aff-delta hidden">+0</div>
+    </div>
+
+    <!-- 信件面板（默认隐藏） -->
+    <div id="mailPanel" class="mail hidden" role="dialog" aria-label="信件面板">
+      <div class="mail-header">
+        <div class="mail-title">信件</div>
+        <button id="mailClose" class="mail-close" title="关闭">✕</button>
+      </div>
+
+      <div class="mail-main">
+        <div class="mail-list" id="mailList"></div>
+
+        <div class="mail-view">
+          <div id="mailSubject" class="mail-subject">（无）</div>
+          <div id="mailMeta" class="mail-meta"></div>
+          <div id="mailContent" class="mail-content"></div>
+          <div id="mailSign" class="mail-sign"></div>
+
+          <div class="mail-footer">
+            <button id="mailMarkRead" class="mail-btn">标为已读</button>
+            <button id="mailPrev" class="mail-btn">上一封</button>
+            <button id="mailNext" class="mail-btn">下一封</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 选项 -->
+    <div id="choices" class="choices hidden"></div>
+
+    <!-- 对话框 -->
+    <div id="textbox" class="textbox">
+      <div class="name-row">
+        <span id="speaker" class="speaker">旁白</span>
+        <span class="hint">点击背景或对话框继续</span>
+      </div>
+
+      <div id="text" class="text"></div>
+
+      <div class="controls">
+        <button id="btnBack" class="ctrl">回看</button>
+        <button id="btnSave" class="ctrl">存档</button>
+        <button id="btnLoad" class="ctrl">读档</button>
+      </div>
+
+      <div id="debug" class="hint debug"></div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
