@@ -2,23 +2,23 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>昨日偶遇：末日铁拳</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>心动之箭：末日铁拳</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
   <div id="app" class="app">
-    <!-- 背景 -->
+    <!-- 背景层 -->
     <div id="bg" class="bg" aria-hidden="true"></div>
 
-    <!-- 立绘（底部锚定） -->
-    <div class="char-layer" aria-hidden="true">
+    <!-- 立绘层 -->
+    <div id="charLayer" class="char-layer" aria-hidden="true">
       <img id="charImg" class="char-img" alt="" />
     </div>
 
-    <!-- 顶部 HUD -->
-    <div class="hud">
+    <!-- 顶部HUD -->
+    <div class="hud" id="hud">
       <div class="hud-left">
         <button id="btnChat" class="btn pill">聊天</button>
 
@@ -27,68 +27,75 @@
           <span id="mailBadge" class="badge hidden">0</span>
         </button>
 
-        <button id="btnReset" class="btn pill ghost">RESET</button>
+        <button id="btnReset" class="btn pill danger">RESET</button>
       </div>
 
       <div class="hud-right">
-        <div class="aff">
-          <span class="heart" aria-hidden="true">❤</span>
-          <span>好感度</span>
-          <span id="affVal" class="mono">0</span>
-          <span class="sep"></span>
-          <span>信任</span>
-          <span id="trustVal" class="mono">0</span>
+        <div class="stats pill">
+          <span class="stat">
+            <span class="icon">❤</span>
+            好感度 <b id="affVal">0</b>
+          </span>
+          <span class="divider"></span>
+          <span class="stat">
+            信任 <b id="trustVal">0</b>
+          </span>
         </div>
       </div>
     </div>
-
-    <!-- 邮件面板 -->
-    <div id="mailPanel" class="panel hidden" role="dialog" aria-label="信件面板">
-      <div class="panel-head">
-        <div class="panel-title">信件</div>
-        <button id="btnMailClose" class="btn icon">×</button>
-      </div>
-      <div class="panel-body">
-        <div class="mail-wrap">
-          <div id="mailList" class="mail-list"></div>
-          <div id="mailContent" class="mail-content">
-            <div class="mail-empty">暂无信件（会随剧情解锁）</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 选项区 -->
-    <div id="choices" class="choices hidden" aria-label="选项"></div>
 
     <!-- 对话框 -->
     <div id="textbox" class="textbox" role="dialog" aria-label="对话框">
-      <div class="tb-top">
-        <div id="speaker" class="speaker">旁白</div>
-        <div id="hint" class="hint">点击对话框继续</div>
+      <div class="textbox-top">
+        <span id="speaker" class="speaker">旁白</span>
+        <span id="hint" class="hint">点击对话框继续</span>
       </div>
+      <div id="text" class="text"></div>
+    </div>
 
-      <div id="text" class="text">加载中…</div>
+    <!-- 选项 -->
+    <div id="choices" class="choices hidden" aria-label="选项区"></div>
 
-      <div class="tb-bottom">
-        <button id="btnSave" class="btn small">存档</button>
-        <button id="btnLoad" class="btn small">读档</button>
+    <!-- 收到新信件Toast -->
+    <div id="toast" class="toast hidden" aria-live="polite">收到新信件</div>
+
+    <!-- 聊天记录面板 -->
+    <div id="chatPanel" class="panel hidden" role="dialog" aria-label="聊天记录面板">
+      <div class="panel-head">
+        <div class="panel-title">聊天记录</div>
+        <button class="btn pill" id="btnChatClose">关闭</button>
+      </div>
+      <div id="chatLog" class="panel-body log"></div>
+    </div>
+
+    <!-- 信件面板 -->
+    <div id="mailPanel" class="panel hidden" role="dialog" aria-label="信件面板">
+      <div class="panel-head">
+        <div class="panel-title">信件</div>
+        <button class="btn pill" id="btnMailClose">关闭</button>
+      </div>
+      <div class="panel-body mail-wrap">
+        <div id="mailList" class="mail-list"></div>
+        <div id="mailView" class="mail-view">
+          <div class="mail-view-title" id="mailViewTitle">请选择一封信</div>
+          <div class="mail-view-meta" id="mailViewMeta"></div>
+          <div class="mail-view-body" id="mailViewBody"></div>
+        </div>
       </div>
     </div>
 
     <!-- 结局弹窗 -->
-    <div id="endingModal" class="modal hidden" role="dialog" aria-label="结局">
+    <div id="endingModal" class="modal hidden" role="dialog" aria-label="结局弹窗">
       <div class="modal-card">
-        <div class="modal-title">游戏结束</div>
-        <div id="endingBadge" class="modal-badge">称号：——</div>
-        <div id="endingDesc" class="modal-desc"></div>
+        <div class="modal-title" id="endingTitle">游戏结束</div>
+        <div class="modal-sub" id="endingSub">你获得了称号：</div>
+        <div class="modal-badge" id="endingBadge">称号</div>
         <div class="modal-actions">
-          <button id="btnRestart" class="btn pill">重新开始</button>
-          <button id="btnCloseEnding" class="btn pill ghost">关闭</button>
+          <button id="btnRestart" class="btn pill danger">重新开始</button>
+          <button id="btnCloseEnding" class="btn pill">关闭</button>
         </div>
       </div>
     </div>
-
   </div>
 
   <script src="main.js"></script>
