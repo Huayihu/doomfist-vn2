@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="data:," />
 </head>
+
 <body>
   <div id="app" class="app">
     <!-- 背景层 -->
@@ -14,59 +15,54 @@
 
     <!-- 立绘层 -->
     <div class="char-layer" aria-hidden="true">
-      <img id="charImg" class="char-img" src="assets/charA.png" alt="" />
+      <img id="charImg" class="char-img" src="assets/charA.png" alt="">
     </div>
 
-    <!-- 顶部按钮 -->
-    <div class="topbar">
-      <button id="btnChat" class="pill">聊天</button>
-      <button id="btnMail" class="pill">
+    <!-- 顶部HUD -->
+    <div class="hud">
+      <button id="btnChat" class="hud-btn">聊天</button>
+
+      <button id="btnMail" class="hud-btn">
         信件 <span id="mailBadge" class="badge hidden">0</span>
       </button>
-      <button id="btnReset" class="pill danger">RESET</button>
+
+      <button id="btnReset" class="hud-btn ghost">RESET</button>
     </div>
 
     <!-- 左下角好感度 -->
     <div class="affection">
-      <div class="aff-row">
-        <span class="heart">❤</span>
-        <span class="aff-label">好感度</span>
-        <span id="affValue" class="aff-value">0</span>
-      </div>
-      <div class="aff-bar">
-        <div id="affFill" class="aff-fill" style="width:0%"></div>
+      <div class="heart">❤</div>
+      <div class="aff-body">
+        <div class="aff-label">好感度 <span id="affValue">0</span></div>
+        <div class="aff-bar">
+          <div id="affFill" class="aff-fill"></div>
+        </div>
       </div>
     </div>
-
-    <!-- 对话框（点击空白处/对话框继续） -->
-    <div id="textbox" class="textbox">
-      <div class="textbox-head">
-        <span id="speaker" class="speaker">旁白</span>
-        <span id="hint" class="hint">点击对话框继续</span>
-      </div>
-      <div id="text" class="text"></div>
-    </div>
-
-    <!-- 选项（最多占屏幕下方 1/3，手机也不会挡满） -->
-    <div id="choices" class="choices hidden"></div>
 
     <!-- 邮件面板 -->
     <div id="mailPanel" class="panel hidden" role="dialog" aria-label="信件面板">
-      <div class="panel-head">
+      <div class="panel-header">
         <div class="panel-title">信件</div>
-        <button id="mailClose" class="pill small">×</button>
+        <button id="mailClose" class="panel-close">×</button>
       </div>
       <div id="mailList" class="mail-list"></div>
+      <div id="mailEmpty" class="mail-empty hidden">暂无信件（剧情推进会解锁）</div>
     </div>
 
-    <!-- 存档/读档（小按钮，避免挡屏） -->
-    <div class="savebar">
-      <button id="btnSave" class="pill small">存档</button>
-      <button id="btnLoad" class="pill small">读档</button>
+    <!-- 对话框 -->
+    <div id="textbox" class="textbox">
+      <div class="tb-top">
+        <span id="speaker" class="speaker">旁白</span>
+        <span class="hint">点击对话框继续</span>
+      </div>
+      <div id="content" class="content"></div>
+
+      <div id="choices" class="choices hidden"></div>
     </div>
 
-    <!-- 错误提示 -->
-    <div id="toast" class="toast hidden"></div>
+    <!-- 右上角错误提示（仅调试） -->
+    <div id="errorToast" class="error-toast hidden"></div>
   </div>
 
   <script src="main.js"></script>
